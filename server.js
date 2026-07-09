@@ -23,26 +23,30 @@ const { SocksProxyAgent } = require('socks-proxy-agent');
 const app = express();
 app.set('trust proxy', true); // Ha proxy vagy CDN (pl. Cloudflare) mögött futsz
 
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
+
 // ==========================================
 // SZERVER SZINTŰ BIZTONSÁG (SECURITY HEADERS & LIMITS)
 // ==========================================
 app.disable('x-powered-by'); // Elrejtjük, hogy Express szerver fut
 
-app.use((req, res, next) => {
-    // Iframe Framekiller (X-Frame-Options)
-    res.setHeader('X-Frame-Options', 'DENY');
-    // Ne próbálja meg kitalálni a fájltípusokat
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    // Cross-Site Scripting (XSS) beépített böngésző védelem aktiválása
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    // Referrer házirend (Ne küldjön át adatot, ha más oldalra kattintanak)
-    res.setHeader('Referrer-Policy', 'no-referrer');
-    next();
-});
+// 1. Helmet: Professzionális biztonsági fejlécek (XSS, Clickjacking, MIME sniffing ellen)
+app.use(helmet({
+    contentSecurityPolicy: false, // CSP kikapcsolva, hogy a te képeid/scriptjeid biztosan betöltődjenek
+    crossOriginEmbedderPolicy: false // Ne blokkolja a külső beágyazásokat
+}));
 
 // Payload (POST adat) méretének szigorú korlátozása (DDoS védelem kiegészítése)
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// 2. NoSQL Injection védelem (MongoDB támadások ellen)
+app.use(mongoSanitize());
+
+// 3. HPP (HTTP Parameter Pollution) védelem (Kettőzött paraméterek elleni védelem)
+app.use(hpp());
 
 // RENDER.COM KEEP-ALIVE - Legfelülre tesszük, hogy a védelmek (middleware-ek) ne blokkolják
 app.get('/api/ping', (req, res) => res.send('pong'));
