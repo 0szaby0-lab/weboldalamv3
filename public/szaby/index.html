@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Szaby — FiveM ESX Lua developer, web UI designer, Discord server builder, gamer, and Hungarian Twitch creator." />
+  <meta name="theme-color" content="#8b5cf6" />
+  <meta property="og:title" content="Szaby — Developer Portfolio" />
+  <meta property="og:description" content="FiveM development, web UI, Discord servers, gaming content, and creator branding." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://i.imgur.com/oO8P5Db.jpeg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <title>Szaby — Developer Portfolio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="/szaby/style.css?v=2" rel="stylesheet" />
+    <link rel="preload" as="image" href="/szaby/assets/icons/portfolio.png" />
+    
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="no-scroll" data-theme="purple">
+    <!-- Interaktív Partikula Háttér -->
+    <div id="particles-js" style="position: absolute; width: 100%; height: 100%; z-index: -1;"></div>
+    <!-- Eredeti Blobs (opcionális háttérfény) -->
+    <div class="bg-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+  <div id="intro-overlay" aria-label="Intro loading screen">
+    <div class="loader" id="loading-animation" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <button id="intro-text" type="button">Kattints bárhova a folytatáshoz</button>
+    <div id="anti-skid-warning" style="display: block; color: #ff4d4d; text-align: center; font-size: 14px; font-weight: bold; font-family: monospace; max-width: 650px; padding: 15px; border: 2px dashed #ff4d4d; background: rgba(255,0,0,0.05); border-radius: 10px; margin-top: 30px; animation: pulse 2s infinite; text-shadow: 0 0 10px rgba(255,0,0,0.3);">
+      ⚠️ BIZTONSÁGI FIGYELMEZTETÉS ⚠️<br><br>
+      A weboldal szigorú másolásvédelemmel van ellátva. Az alábbi tevékenységek BÁRMELYIKÉNEK használata <b>azonnali és végleges IP kitiltást</b>, valamint automatikus Discord jelentést von maga után:<br><br>
+      <span style="color: #fff;">[ F12 ]</span> Fejlesztői Eszközök<br>
+      <span style="color: #fff;">[ Ctrl + Shift + I / J / C ]</span> Konzol / Inspect<br>
+      <span style="color: #fff;">[ Ctrl + U ]</span> Forráskód megtekintése<br>
+      <span style="color: #fff;">[ Ctrl + S ]</span> Oldal lementése<br>
+      <span style="color: #fff;">[ Ctrl + P ]</span> Oldal nyomtatása<br>
+      <span style="color: #fff;">[ Jobb Klikk ]</span> Kontextus menü használata<br><br>
+      Minden kísérlet naplózva van. Kérlek, ne próbálkozz.
+    </div>
+  </div>
+
+  <nav class="top-nav" aria-label="Main navigation">
+    <a href="#home" class="brand" aria-label="Go to home">
+      <img src="https://i.imgur.com/oO8P5Db.jpeg" alt="Szaby" />
+      <span>Szaby</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-links" id="nav-links">
+      <a href="#home">Főoldal</a>
+      <a href="#about">Rólam</a>
+      <a href="#work">Munkáim</a>
+      <a href="#setup">Felszerelés</a>
+      <a href="#contact" class="nav-cta">Discord</a>
+    </div>
+  </nav>
+
+  <div class="side-dots" aria-label="Section shortcuts">
+    <a href="#home" data-section="home" aria-label="Home"></a>
+    <a href="#about" data-section="about" aria-label="About"></a>
+    <a href="#work" data-section="work" aria-label="Work"></a>
+    <a href="#setup" data-section="setup" aria-label="Setup"></a>
+    <a href="#contact" data-section="contact" aria-label="Contact"></a>
+  </div>
+
+  <main>
+    <section id="home" class="page-section hero-section" data-section-name="home">
+      <div class="video-container" aria-hidden="true">
+      </div>
+
+      <div class="content-wrapper hero-layout reveal reveal-up">
+        <div class="hero-split">
+            <div class="hero-left">
+                <div class="profile-pic-wrapper reveal reveal-right delay-2" style="margin-bottom: 20px;">
+                  <div class="glow-ring"></div>
+                  <img src="https://i.imgur.com/oO8P5Db.jpeg" alt="Szaby profile" class="profile-pic" />
+                </div>
+
+                <div class="status-badge" id="online-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Csatlakozás Lanyardhoz...</span>
+                </div>
+                
+                <h1>Szaby</h1>
+                <p class="description" id="desc-text" aria-live="polite"></p>
+
+                <div class="hero-actions">
+                    <a href="#work" class="primary-btn"><i class="fas fa-layer-group"></i> Munkáim</a>
+                    <a href="#contact" class="ghost-btn"><i class="fab fa-discord"></i> Discord Kapcsolat</a>
+                </div>
+
+                <ul class="social-row" aria-label="Social links">
+                    <li><a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://steamcommunity.com" target="_blank" aria-label="Steam"><i class="fab fa-steam" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://spotify.com" target="_blank" aria-label="Spotify"><i class="fab fa-spotify" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://youtube.com" target="_blank" aria-label="YouTube"><i class="fab fa-youtube" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://twitch.tv" target="_blank" aria-label="Twitch"><i class="fab fa-twitch" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://discord.com" target="_blank" aria-label="Discord"><i class="fab fa-discord" style="font-size: 24px; color: white;"></i></a></li>
+                    <li><a href="https://github.com" target="_blank" aria-label="GitHub"><i class="fab fa-github" style="font-size: 24px; color: white;"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="hero-right">
+                <div class="discord-card tilt-card" id="discord-card">
+                  <div class="discord-avatar-container">
+                    <img id="discord-avatar" src="/szaby/assets/icons/discord.png" alt="Discord avatar" />
+                    <div id="status-indicator" class="status-indicator offline"></div>
+                  </div>
+                  <div class="discord-info" style="text-align: left;">
+                    <div class="discord-name" id="discord-username">Szaby</div>
+                    <div class="discord-activity" id="discord-activity">Minden nap egy új lehetőség a fejlődésre.</div>
+                  </div>
+                  <img id="activity-icon" src="assets/icons/discord.png" alt="" hidden />
+                </div>
+
+                <!-- Beépített Zenelejátszó (Discord kártya stílusban) -->
+                <div class="discord-card tilt-card music-card" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                      <div style="display: flex; align-items: center; gap: 15px;">
+                          <div class="album-art" style="width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; justify-content: center; align-items: center; color: white;"><i class="fas fa-music"></i></div>
+                          <div class="track-info" style="display: flex; flex-direction: column; text-align: left;">
+                              <span id="track-title" style="font-weight: 700; font-size: 0.95rem; color: #fff;">TRAVIS SCOTT - FE!N</span>
+                              <span id="track-artist" style="font-size: 0.8rem; color: var(--muted);">System Audio</span>
+                          </div>
+                      </div>
+                      <div class="audio-visualizer" id="visualizer" style="display: flex; align-items: flex-end; gap: 3px; height: 15px;">
+                          <span style="width: 3px; height: 3px; background: var(--accent); border-radius: 3px; transition: 0.1s;"></span>
+                          <span style="width: 3px; height: 3px; background: var(--accent); border-radius: 3px; transition: 0.1s;"></span>
+                          <span style="width: 3px; height: 3px; background: var(--accent); border-radius: 3px; transition: 0.1s;"></span>
+                          <span style="width: 3px; height: 3px; background: var(--accent); border-radius: 3px; transition: 0.1s;"></span>
+                      </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px;">
+                      <button class="play-btn" id="play-btn" onclick="togglePlay()" style="width: 35px; height: 35px; border-radius: 50%; border: none; background: #fff; color: #000; cursor: pointer; display: flex; justify-content: center; align-items: center;"><i class="fas fa-play"></i></button>
+                      <div class="progress-container" style="display: flex; align-items: center; gap: 10px; flex: 1; font-size: 0.75rem; color: var(--muted);">
+                          <span id="current-time">0:00</span>
+                          <div class="progress-bar-bg" id="progress-container" onclick="seek(event)" style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer; position: relative;">
+                              <div class="progress-fill" id="progress-fill" style="position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); width: 0%; border-radius: 2px;"></div>
+                          </div>
+                          <span id="total-time">0:00</span>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 5px;">
+                          <i class="fas fa-volume-down" style="color: var(--muted); font-size: 0.8rem;"></i>
+                          <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" onchange="setVolume(this.value)" style="width: 50px; height: 3px; -webkit-appearance: none; background: rgba(255,255,255,0.1); border-radius: 2px;">
+                      </div>
+                  </div>
+                </div>
+                <audio id="bg-music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+            </div>
+        </div>
+      </div>
+
+      <a class="scroll-down" href="#about" aria-label="Scroll to about">
+        <i class="fas fa-chevron-down"></i>
+      </a>
+    </section>
+
+    <section id="about" class="page-section split-section" data-section-name="about">
+      <div class="video-container" aria-hidden="true">
+        <div class="video-background">
+          <div id="video-about" class="video-poster poster-about" role="img" aria-label="Background inspired by Szaby video section" data-video-source="https://www.youtube.com/watch?v=Ctf-EIBR2YU"></div>
+        </div>
+        <div class="vignette-top"></div>
+        <div class="vignette-bottom"></div>
+      </div>
+
+      <div class="section-shell about-wrapper reveal reveal-left">
+        <div class="image-panel floating-card">
+          <img src="/szaby/assets/icons/aboutme.png" alt="About me lettering" />
+        </div>
+
+        <div class="bento-grid wide-grid">
+          <article class="bento-card span-2 tilt-card">
+            <div class="card-header"><i class="fas fa-user-astronaut"></i><h2>Rólam</h2></div>
+            <p>FiveM ESX fejlesztéssel, modern weboldalakkal és egyedi UI tervezéssel foglalkozom. Szeretek letisztult, prémium sötét témájú felületeket alkotni, amik élményt nyújtanak a felhasználóknak. Legyen szó egy szerverről vagy egy weboldalról, a minőség a legfontosabb.</p>
+          </article>
+
+          <article class="bento-card tilt-card time-card">
+            <div class="card-header"><i class="fas fa-clock"></i><h2>Helyi Idő</h2></div>
+            <div class="time-box">
+              <span id="local-time" class="time-display">00:00:00</span>
+              <div class="location-box" style="margin-top: 5px;"><img src="https://flagcdn.com/ro.svg" alt="Romania flag" class="flag-icon" /><span>Románia</span></div>
+            </div>
+          </article>
+
+          <article class="bento-card tilt-card weather-card">
+            <div class="card-header"><i class="fas fa-cloud-sun"></i><h2>Időjárás</h2></div>
+            <div class="weather-box" id="weather-box">
+              <div class="weather-icon" id="weather-icon"><i class="fas fa-spinner fa-spin"></i></div>
+              <div class="weather-info">
+                <span id="weather-temp" class="weather-temp">--°C</span>
+                <span id="weather-desc" class="weather-desc">Betöltés...</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="bento-card tilt-card">
+            <div class="card-header"><i class="fas fa-language"></i><h2>Nyelvek</h2></div>
+            <div class="lang-list">
+              <div class="lang-item"><span>Magyar</span><div class="progress-bar"><div style="width:100%"></div></div></div>
+              <div class="lang-item"><span>Román</span><div class="progress-bar"><div style="width:90%"></div></div></div>
+              <div class="lang-item"><span>Angol</span><div class="progress-bar"><div style="width:80%"></div></div></div>
+            </div>
+          </article>
+
+          <article class="bento-card span-2 tilt-card">
+            <div class="card-header"><i class="fas fa-code"></i><h2>Arsenal</h2></div>
+            <div class="tech-stack">
+              <i class="fab fa-js" title="JavaScript"></i>
+              <i class="fab fa-html5" title="HTML5"></i>
+              <i class="fab fa-css3-alt" title="CSS3"></i>
+              <span>Lua</span>
+              <i class="fab fa-discord" title="Discord"></i>
+              <i class="fas fa-gamepad" title="Gaming"></i>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="work" class="page-section clean-section work-section" data-section-name="work">
+      <div class="section-heading reveal reveal-up">
+        <p class="eyebrow"><span></span> Szolgáltatások és projektek</p>
+        <h2>Munkáim</h2>
+        <p>Minden, amit szeretek építeni, egy helyen: FiveM, weboldalak, Discord szerverek, játékok és magyar tartalomgyártás.</p>
+      </div>
+
+      <div class="project-grid reveal reveal-up delay-1">
+        <article class="project-card tilt-card">
+          <div class="project-icon"><img src="/szaby/assets/games/fivem.png" alt="FiveM" /></div>
+          <div class="project-body">
+            <span class="project-tag">FiveM</span>
+            <h3>Egyedi FiveM Fejlesztés</h3>
+            <p>Szeretek egyedi scripteket, szerver funkciókat és különleges ötleteket megvalósítani FiveM közösségek számára.</p>
+            <div class="pill-row"><span>Lua</span><span>ESX</span><span>Szerverek</span></div>
+          </div>
+        </article>
+
+        <article class="project-card tilt-card">
+          <div class="project-icon"><img src="/szaby/assets/icons/portfolio.png" alt="Web UI" /></div>
+          <div class="project-body">
+            <span class="project-tag">Web UI</span>
+            <h3>Weboldalak & UI Tervezés</h3>
+            <p>Modern és letisztult weboldalakat készítek. Keress meg Discordon, ha neked is szükséged van egyre.</p>
+            <div class="pill-row"><span>HTML</span><span>CSS</span><span>JS</span></div>
+          </div>
+        </article>
+
+        <article class="project-card tilt-card">
+          <div class="project-icon"><img src="/szaby/assets/icons/twitch.png" alt="Twitch" /></div>
+          <div class="project-body">
+            <span class="project-tag">Twitch</span>
+            <h3>Magyar Tartalomgyártás</h3>
+            <p>Folyamatosan próbálok fejlődni és szórakoztató tartalmakat gyártani. Kövess be a streamekért!</p>
+            <div class="pill-row"><span>Stream</span><span>HU</span><span>Support</span></div>
+          </div>
+        </article>
+
+        <article class="project-card tilt-card">
+          <div class="project-icon"><img src="/szaby/assets/icons/discord.png" alt="Discord" /></div>
+          <div class="project-body">
+            <span class="project-tag">Discord</span>
+            <h3>Discord Szerver Építés</h3>
+            <p>Profi Discord szervereket építek letisztult csatornákkal, szerepkörökkel, botokkal és szabályzatokkal.</p>
+            <div class="pill-row"><span>Szerepek</span><span>Botok</span><span>Közösség</span></div>
+          </div>
+        </article>
+
+        <article class="project-card tilt-card">
+          <div class="project-icon"><img src="/szaby/assets/games/cs2.png" alt="Gaming" /></div>
+          <div class="project-body">
+            <span class="project-tag">Játékok</span>
+            <h3>Gaming & Szórakozás</h3>
+            <p>Szeretek különböző játékokat kipróbálni a barátokkal, a kompetitív meccsektől kezdve a lazulásig.</p>
+            <div class="pill-row"><span>CS2</span><span>FiveM</span><span>Fun</span></div>
+          </div>
+        </article>
+
+        <article class="project-card tilt-card">
+          <div class="project-icon"><img src="/szaby/assets/icons/aboutme.png" alt="Branding" /></div>
+          <div class="project-body">
+            <span class="project-tag">Közösség</span>
+            <h3>Közösségi Oldalak</h3>
+            <p>Személyre szabott profiloldalakat és közösségi hubokat építek, amik passzolnak a stílusodhoz.</p>
+            <div class="pill-row"><span>Márka</span><span>Social</span><span>Hub</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="setup" class="page-section split-section" data-section-name="setup">
+      <div class="video-container" aria-hidden="true">
+        <div class="video-background">
+          <div id="video-setup" class="video-poster poster-setup" role="img" aria-label="Background inspired by Szaby video section" data-video-source="https://www.youtube.com/watch?v=epZtKekbXB4"></div>
+        </div>
+        <div class="vignette-top"></div>
+        <div class="vignette-bottom"></div>
+      </div>
+
+      <div class="section-shell setup-wrapper reveal reveal-right">
+        <div class="bento-grid wide-grid">
+          <article class="bento-card span-2 tilt-card">
+            <div class="card-header"><i class="fas fa-microchip"></i><h2>Számítógép</h2></div>
+            <div class="specs-grid">
+              <div><span>CPU</span><strong>I5 14400F</strong></div>
+              <div><span>GPU</span><strong>RTX 3070 OC</strong></div>
+              <div><span>RAM</span><strong>16GB HyperX</strong></div>
+              <div><span>Alaplap</span><strong>MSI PRO H610M-E</strong></div>
+              <div><span>SSD</span><strong>Patriot 1TB SSD</strong></div>
+              <div><span>Ház</span><strong>XPG Invader X</strong></div>
+              <div><span>Hűtő</span><strong>Endorfy Spartan 5</strong></div>
+              <div><span>Táp</span><strong>Gigabyte 550W</strong></div>
+            </div>
+          </article>
+
+          <article class="bento-card tilt-card">
+            <div class="card-header"><i class="fas fa-keyboard"></i><h2>Perifériák</h2></div>
+            <ul class="gear-list">
+              <li><i class="fas fa-mouse"></i> Logitech G305</li>
+              <li><i class="fas fa-keyboard"></i> Dark Project Midnight</li>
+              <li><i class="fas fa-headset"></i> Corsair HS50 Pro</li>
+              <li><i class="fas fa-wave-square"></i> Fifine T732</li>
+            </ul>
+          </article>
+
+          <article class="bento-card tilt-card">
+            <div class="card-header"><i class="fas fa-desktop"></i><h2>Megjelenítő</h2></div>
+            <p>Fő monitor:<br /><strong>LG 165Hz Gaming Monitor</strong></p>
+          </article>
+
+          <article class="bento-card span-2 tilt-card">
+            <div class="card-header"><i class="fas fa-gamepad"></i><h2>Fő Játékok</h2></div>
+            <div class="game-logos">
+              <div><img src="/szaby/assets/games/fortnite.png" alt="Fortnite" /><span>Fortnite</span></div>
+              <div><img src="/szaby/assets/games/cs2.png" alt="CS2" /><span>CS2</span></div>
+              <div><img src="/szaby/assets/games/minecraft.png" alt="Minecraft" /><span>Minecraft</span></div>
+              <div><img src="/szaby/assets/games/fivem.png" alt="FiveM" /><span>FiveM</span></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="image-panel floating-card">
+          <img src="/szaby/assets/icons/settings.png" alt="Setup lettering" />
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="page-section clean-section contact-section" data-section-name="contact">
+      <div class="section-heading reveal reveal-up">
+        <p class="eyebrow"><span></span> Lépj velem kapcsolatba</p>
+        <h2>Discord</h2>
+        <p>FiveM, weboldalak, Discord szerverek vagy együttműködések miatt keress bátran Discordon.</p>
+      </div>
+
+      <div class="contact-grid single-contact reveal reveal-up delay-2">
+        <article class="contact-card discord-contact-card tilt-card">
+          <img src="/szaby/assets/icons/discord.png" alt="Discord" />
+          <h3>Keress Szabyt Discordon</h3>
+          <p>A leggyorsabb módja az elérhetőségemnek. Írd meg az ötleted, és megnézzük, mit tehetünk.</p>
+          <a class="discord-only-btn" href="https://discord.gg/RwsFau5YSu" target="_blank" rel="noopener">
+            <i class="fab fa-discord"></i>
+            Csatlakozz a Discordomhoz
+          </a>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!--
+    🛡️ SCRIPT BLOKKOLÁS VÉDELEM
+    Ez az inline script fut le ELSŐKÉNT.
+    Ha bármelyik külső .js fájlt blokkolja egy bővítmény,
+    a stoppp() függvény azonnal átirányítja az oldalt.
+  -->
+  <script>
+    // stoppp() - Ha extra.js vagy devtools-detector.js blokkolva van → bannolás!
+    function stoppp() {
+      // Azonnali vizuális blokkolás
+      document.documentElement.style.cssText = 'display:none!important';
+
+      // Értesítés a szervernek
+      try {
+        fetch('/api/script-blocked', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            page: window.location.pathname,
+            ua: navigator.userAgent,
+            reason: 'JS_SCRIPT_BLOCKED'
+          })
+        }).catch(() => {});
+      } catch(e) {}
+
+      // Átirányítás a tiltott oldalra
+      setTimeout(() => {
+        window.location.replace('/banned-scraper.html');
+      }, 100);
+    }
+
+    // devtoolsDetector script betöltés ellenőrzése
+    // Ha a devtools-detector.js blokkolva van → stoppp()
+    window.__devtoolsDetectorLoaded = false;
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script src="/szaby/oeasen-script.js"></script>
+
+  <!-- devtools-detector: LOKÁLISAN tárolva, CDN nélkül (blokkolás ellen) -->
+  <script src="/szaby/js-devtools-detector.js" onerror="stoppp()"></script>
+
+  <!-- extra.js: Ha blokkolva → stoppp() hívódik -->
+  <script src="/szaby/extra.js" onerror="stoppp()"></script>
+
+  <script>
+    // A felugró figyelmeztetést a kérésedre kivettem, 
+    // a védelem csendben, a háttérben fut tovább!
+
+      // Music Player Logic
+      const audio = document.getElementById('bg-music');
+      const playBtn = document.getElementById('play-btn');
+      const progressFill = document.getElementById('progress-fill');
+      const currentTimeEl = document.getElementById('current-time');
+      const totalTimeEl = document.getElementById('total-time');
+      const visualizer = document.getElementById('visualizer');
+
+      function togglePlay() {
+          if (audio.paused) {
+              audio.play();
+              playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+              visualizer.classList.add('playing');
+          } else {
+              audio.pause();
+              playBtn.innerHTML = '<i class="fas fa-play"></i>';
+              visualizer.classList.remove('playing');
+          }
+      }
+
+      audio.addEventListener('timeupdate', () => {
+          const progressPercent = (audio.currentTime / audio.duration) * 100;
+          progressFill.style.width = `${progressPercent}%`;
+          
+          let currentMins = Math.floor(audio.currentTime / 60);
+          let currentSecs = Math.floor(audio.currentTime % 60);
+          if (currentSecs < 10) currentSecs = `0${currentSecs}`;
+          currentTimeEl.textContent = `${currentMins}:${currentSecs}`;
+          
+          let totalMins = Math.floor(audio.duration / 60);
+          let totalSecs = Math.floor(audio.duration % 60);
+          if(totalMins && totalSecs) {
+              if (totalSecs < 10) totalSecs = `0${totalSecs}`;
+              totalTimeEl.textContent = `${totalMins}:${totalSecs}`;
+          }
+      });
+
+      function seek(e) {
+          const width = document.getElementById('progress-container').clientWidth;
+          const clickX = e.offsetX;
+          const duration = audio.duration;
+          audio.currentTime = (clickX / width) * duration;
+      }
+
+      function setVolume(val) {
+          audio.volume = val;
+      }
+  </script>
+</body>
+</html>
+

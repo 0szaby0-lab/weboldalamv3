@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚫 Hozzáférés Megtagadva – Tiltott Eszköz Észlelve</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #ff2d2d;
+      --orange: #ff7c2d;
+      --bg:     #080b10;
+      --card:   #0e1320;
+      --border: #1e2a3a;
+      --text:   #e2e8f0;
+      --muted:  #64748b;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ── Animated grid background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,45,45,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,45,45,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: .5; }
+      50%       { opacity: 1; }
+    }
+
+    /* ── Glow blobs ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      z-index: 0;
+      animation: blobFloat 6s ease-in-out infinite;
+    }
+    .blob-1 { width: 400px; height: 400px; background: rgba(255,45,45,.12); top: -100px; right: -100px; }
+    .blob-2 { width: 300px; height: 300px; background: rgba(255,124,45,.08); bottom: -80px; left: -80px; animation-delay: -3s; }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-20px) scale(1.05); }
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 540px;
+      width: 90%;
+      text-align: center;
+      box-shadow:
+        0 0 0 1px rgba(255,45,45,.1),
+        0 25px 80px rgba(0,0,0,.6),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      animation: cardIn .6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(.95); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── Shield Icon ── */
+    .shield-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .shield-ring {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,45,45,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(255,45,45,.12) 0%, transparent 70%);
+      animation: ringPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,45,.4); }
+      50%       { box-shadow: 0 0 0 16px rgba(255,45,45,0); }
+    }
+
+    .shield-icon {
+      font-size: 42px;
+      animation: shieldShake .5s ease-in-out 0.7s 3;
+    }
+
+    @keyframes shieldShake {
+      0%, 100% { transform: rotate(0deg); }
+      25%       { transform: rotate(-8deg); }
+      75%       { transform: rotate(8deg); }
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,45,45,.12);
+      border: 1px solid rgba(255,45,45,.25);
+      color: var(--red);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 20px;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── Titles ── */
+    h1 {
+      font-size: clamp(22px, 5vw, 28px);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ff5555 0%, #ff9955 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* ── Info Box ── */
+    .info-box {
+      background: rgba(255,45,45,.06);
+      border: 1px solid rgba(255,45,45,.15);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .info-box p {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+
+    .info-box strong {
+      color: #e2e8f0;
+    }
+
+    /* ── Reason list ── */
+    .reasons {
+      list-style: none;
+      margin: 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .reasons li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .reasons li::before {
+      content: '✗';
+      color: var(--red);
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ── Code tag ── */
+    code {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 5px;
+      padding: 1px 7px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #f97316;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── Footer ── */
+    .footer-text {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .footer-text a {
+      color: #5865f2;
+      text-decoration: none;
+    }
+
+    /* ── Scan line animation ── */
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,45,45,.8), transparent);
+      border-radius: 20px 20px 0 0;
+      animation: scan 3s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+      0%   { opacity: 0; transform: translateX(-100%); }
+      50%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(100%); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="card">
+    <div class="shield-wrap">
+      <div class="shield-ring">
+        <span class="shield-icon">🛡️</span>
+      </div>
+    </div>
+
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Védelmi rendszer aktív
+    </div>
+
+    <h1>Tiltott eszköz észlelve!</h1>
+
+    <p class="subtitle">
+      A szerverünk egy automatikus weboldal-letöltő programot vagy szkriptet észlelt.<br>
+      Ez az eszköz <strong style="color:#fff">nem engedélyezett</strong> ezen az oldalon.
+    </p>
+
+    <div class="info-box">
+      <p>
+        <strong>Miért látod ezt az oldalt?</strong><br>
+        Az eszközöd vagy programod tiltott kategóriába esik. 
+        Ide tartoznak például az alábbiak:
+      </p>
+      <ul class="reasons">
+        <li>Weboldal-letöltő programok (HTTrack, Wget, cURL)</li>
+        <li>PowerShell / Bash web-szkriptek (<code>Invoke-WebRequest</code>)</li>
+        <li>Python / Java / Go HTTP kliensek</li>
+        <li>Automatikus botok és crawler-ek</li>
+        <li>Ismeretlen vagy hiányzó böngésző azonosító</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <p class="footer-text">
+      Ha úgy gondolod, ez tévedés, és normál böngészőt használsz,<br>
+      kérlek próbálj meg egy másik böngészőt (Chrome, Firefox, Edge).<br><br>
+      Adminisztrátor: <a href="mailto:admin@szaby.is-a.dev">admin@szaby.is-a.dev</a>
+    </p>
+  </div>
+
+</body>
+</html>

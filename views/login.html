@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Bejelentkezés</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#080b10;color:#fff;font-family:'Inter',sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+/* Glowing Orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.4;animation:float 8s ease-in-out infinite}
+.orb-1{width:300px;height:300px;background:#8b5cf6;top:10%;left:20%}
+.orb-2{width:400px;height:400px;background:#06b6d4;bottom:10%;right:20%;animation-delay:-4s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-30px)}}
+
+/* Glassmorphism Card */
+.login-card{position:relative;z-index:10;background:rgba(14,19,32,0.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:48px 40px;width:380px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,0.6),0 0 40px rgba(139,92,246,0.1)}
+.icon-wrap{width:64px;height:64px;background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(6,182,212,0.2));border:1px solid rgba(255,255,255,0.1);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 0 20px rgba(139,92,246,0.3)}
+h1{font-size:24px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{color:#64748b;font-size:14px;margin-bottom:32px}
+.input-group{position:relative;margin-bottom:24px;text-align:left}
+.input-group label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em}
+.input{width:100%;padding:14px 16px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:15px;font-family:inherit;transition:all 0.3s}
+.input:focus{outline:none;border-color:#8b5cf6;box-shadow:0 0 0 4px rgba(139,92,246,0.15)}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#8b5cf6,#6366f1);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:0.5s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(139,92,246,0.4)}
+.btn:hover::before{left:100%}
+#error-msg{color:#ef4444;font-size:13px;margin-top:16px;min-height:18px;font-weight:500}
+</style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="login-card">
+    <div class="icon-wrap">🛡️</div>
+    <h1>Admin Panel</h1>
+    <p>Rendszer hozzáférés</p>
+    <div class="input-group">
+      <label>Hitelesítő Jelszó</label>
+      <input type="password" id="pw" class="input" placeholder="••••••••" autocomplete="off">
+    </div>
+    <button class="btn" onclick="login()" id="lbtn">Belépés a rendszerbe</button>
+    <div id="error-msg"></div>
+  </div>
+
+  <script>
+    const input = document.getElementById('pw');
+    const btn = document.getElementById('lbtn');
+    const err = document.getElementById('error-msg');
+    
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    
+    async function login() {
+        btn.textContent = 'Hitelesítés...';
+        btn.style.opacity = '0.7';
+        err.textContent = '';
+        try {
+            const res = await fetch('/admin/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: input.value })
+            });
+            if (res.ok) {
+                btn.textContent = 'Sikeres belépés! Átirányítás...';
+                btn.style.background = '#22c55e';
+                setTimeout(() => window.location.href = '/admin', 500);
+            } else {
+                err.textContent = '❌ Helytelen jelszó!';
+                btn.textContent = 'Belépés a rendszerbe';
+                btn.style.opacity = '1';
+                input.value = '';
+                input.focus();
+            }
+        } catch(e) {
+            err.textContent = '❌ Hálózati hiba!';
+            btn.textContent = 'Belépés a rendszerbe';
+            btn.style.opacity = '1';
+        }
+    }
+  </script>
+</body>
+</html>

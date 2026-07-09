@@ -1,0 +1,338 @@
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🛡️ Szaby Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Chart.js betöltése -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* CSS ugyanaz marad a gyönyörű UI miatt, de kiegészítjük a Chart részletekkel */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07090f;--surface:#0d1117;--card:#111827;--border:#1e2d3d;--text:#e2e8f0;--muted:#64748b;--red:#ef4444;--orange:#f97316;--green:#22c55e;--purple:#8b5cf6;--cyan:#06b6d4;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;display:flex;flex-direction:column;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.03) 1px,transparent 1px);background-size:30px 30px;z-index:0;pointer-events:none}
+.header{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px}
+.header-right{display:flex;align-items:center;gap:16px}
+.badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.btn-logout{padding:6px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;text-decoration:none;font-weight:600;font-size:12px;transition:0.2s}
+.btn-logout:hover{background:rgba(239,68,68,.2)}
+.container{max-width:1400px;margin:0 auto;padding:24px 28px;width:100%;position:relative;z-index:1}
+.nav-tabs{display:flex;gap:6px;margin-bottom:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px}
+.tab-btn{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);background:transparent;transition:.2s}
+.tab-btn.active{background:rgba(139,92,246,.15);color:var(--purple)}
+.tab-btn:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;inset:0;opacity:.04;background:radial-gradient(circle at 80% 20%,var(--accent) 0%,transparent 60%)}
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(255,255,255,.06)}
+.stat-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat-value{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-sub{font-size:12px;color:var(--muted)}
+/* OS Status Bar */
+.os-bar{display:flex;gap:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 24px;margin-bottom:24px;align-items:center}
+.os-item{display:flex;align-items:center;gap:10px}
+.os-label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase}
+.os-val{font-size:14px;font-weight:700;color:var(--text)}
+.os-pill{background:rgba(139,92,246,.15);color:var(--purple);padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700}
+/* Chart Area */
+.chart-container{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;height:320px}
+/* Tables */
+.section-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.section-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.controls{display:flex;gap:10px}
+.search{padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:#0a0f18;color:var(--text);font-size:13px;width:240px;font-family:inherit}
+.search:focus{outline:none;border-color:var(--purple)}
+.filter-tabs{display:flex;gap:4px}
+.ftab{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:.2s}
+.ftab.active{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3);color:var(--purple)}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;text-align:left}
+th{padding:14px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+td{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;vertical-align:middle}
+tr:hover{background:rgba(255,255,255,.02)}
+.tag{display:inline-flex;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.tag-red{background:rgba(239,68,68,.12);color:var(--red)}
+.tag-orange{background:rgba(249,115,22,.12);color:var(--orange)}
+.tag-green{background:rgba(34,197,94,.12);color:var(--green)}
+.ip-cell{font-family:'Courier New',monospace;color:var(--cyan);font-weight:600}
+.browser-cell{display:flex;align-items:center;gap:6px;font-size:12px}
+.browser-icon{width:16px;height:16px;opacity:0.8}
+.pagination{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px}
+.page-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-weight:600;transition:.2s}
+.page-btn:hover{background:var(--purple);border-color:var(--purple)}
+.hidden{display:none!important}
+.btn-action{padding:6px 12px;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer;border:none;background:var(--green);color:#fff}
+</style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">🛡️ Szaby Dashboard</div>
+    <div class="header-right">
+      <span class="badge">🟢 Rendszer Aktív</span>
+      <span id="last-refresh" style="font-size:12px;color:var(--muted)"></span>
+      <a href="/admin/logout" class="btn-logout">Kijelentkezés</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- OS Status Bar -->
+    <div class="os-bar">
+      <div class="os-item"><span class="os-label">🖥️ Uptime:</span> <span class="os-pill" id="os-uptime">Betöltés...</span></div>
+      <div class="os-item"><span class="os-label">💾 RAM Terheltség:</span> <span class="os-val" id="os-ram">--%</span></div>
+      <div class="os-item"><span class="os-label">🔄 Auto-Sync:</span> <span class="os-val" style="color:var(--green)">30mp</span></div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('bans')" data-tab="bans">⛔ Ban Lista</button>
+      <button class="tab-btn" onclick="switchTab('visitors')" data-tab="visitors">👁️ Látogatók</button>
+      <button class="tab-btn" onclick="switchTab('security')" data-tab="security">🔒 Biztonsági Napló</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card" style="--accent:#ef4444">
+        <div class="stat-top"><span class="stat-label">Összes Ban</span><div class="stat-icon">⛔</div></div>
+        <div class="stat-value" id="s-total" style="color:#ef4444">—</div>
+      </div>
+      <div class="stat-card" style="--accent:#f97316">
+        <div class="stat-top"><span class="stat-label">24 Órás</span><div class="stat-icon">⏳</div></div>
+        <div class="stat-value" id="s-24h" style="color:#f97316">—</div>
+      </div>
+      <div class="stat-card" style="--accent:#dc2626">
+        <div class="stat-top"><span class="stat-label">Végleges</span><div class="stat-icon">🔴</div></div>
+        <div class="stat-value" id="s-perm" style="color:#dc2626">—</div>
+      </div>
+      <div class="stat-card" style="--accent:#8b5cf6">
+        <div class="stat-top"><span class="stat-label">Mai Látogató</span><div class="stat-icon">👤</div></div>
+        <div class="stat-value" id="s-vis" style="color:#8b5cf6">—</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container">
+      <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- BANS TAB -->
+    <div id="tab-bans">
+      <div class="section-header">
+        <span class="section-title">Tiltott IP Címek</span>
+        <div class="controls">
+          <input id="search-ip" class="search" placeholder="IP keresés..." oninput="filterBans()">
+          <div class="filter-tabs">
+            <button class="ftab active" onclick="setFilter(this,'')">Összes</button>
+            <button class="ftab" onclick="setFilter(this,'24h')">24h</button>
+            <button class="ftab" onclick="setFilter(this,'permanent')">Végleges</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>IP Cím</th><th>Ok / Részletek</th><th>Típus</th><th>Lokáció</th><th>Eszköz</th><th>Mikor</th><th>Akció</th></tr>
+          </thead>
+          <tbody id="bans-tbody"><tr><td colspan="7">Betöltés...</td></tr></tbody>
+        </table>
+        <div class="pagination" id="bans-pagination"></div>
+      </div>
+    </div>
+
+    <!-- VISITORS TAB -->
+    <div id="tab-visitors" class="hidden">
+      <div class="section-header"><span class="section-title">Látogatói Napló</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>IP Cím</th><th>Oldal</th><th>Lokáció</th><th>Böngésző / OS</th><th>Nyelv</th><th>Mikor</th></tr>
+          </thead>
+          <tbody id="vis-tbody"><tr><td colspan="6">Betöltés...</td></tr></tbody>
+        </table>
+        <div class="pagination" id="vis-pagination"></div>
+      </div>
+    </div>
+    
+    <!-- SECURITY TAB -->
+    <div id="tab-security" class="hidden">
+      <div class="section-header"><span class="section-title">Biztonsági Események</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>IP Cím</th><th>Trigger Ok</th><th>Oldal</th><th>Lokáció</th><th>Ban Kiosztva?</th><th>Mikor</th></tr>
+          </thead>
+          <tbody id="sec-tbody"><tr><td colspan="6">Betöltés...</td></tr></tbody>
+        </table>
+        <div class="pagination" id="sec-pagination"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+let chartInstance = null;
+let currentFilter = '';
+let currentBanPage = 1, currentVisPage = 1, currentSecPage = 1;
+
+// UA parser helper a szép megjelenítéshez
+function parseUA(ua) {
+    if (!ua) return 'Ismeretlen';
+    let browser = 'Unknown', os = 'Unknown';
+    if(ua.includes('Firefox/')) browser = 'Firefox';
+    else if(ua.includes('Edg/')) browser = 'Edge';
+    else if(ua.includes('Chrome/')) browser = 'Chrome';
+    else if(ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
+    else if(ua.includes('Postman')) browser = 'Postman';
+    else if(ua.includes('curl/')) browser = 'cURL';
+    
+    if(ua.includes('Windows')) os = 'Windows';
+    else if(ua.includes('Mac OS')) os = 'macOS';
+    else if(ua.includes('Linux')) os = 'Linux';
+    else if(ua.includes('Android')) os = 'Android';
+    else if(ua.includes('iPhone')) os = 'iOS';
+    
+    return `${browser} (${os})`;
+}
+
+function fmt(d) {
+    return new Date(d).toLocaleString('hu-HU', { month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
+async function loadStats() {
+    const r = await fetch('/admin/api/stats');
+    if(r.status === 401) return window.location.href = '/admin/login';
+    const d = await r.json();
+    
+    document.getElementById('os-uptime').textContent = d.os?.uptime || '--';
+    document.getElementById('os-ram').textContent = (d.os?.memPercent || '--') + '%';
+    
+    document.getElementById('s-total').textContent = d.total ?? '—';
+    document.getElementById('s-24h').textContent   = d.active24h ?? '—';
+    document.getElementById('s-perm').textContent  = d.permanent ?? '—';
+    document.getElementById('s-vis').textContent   = d.todayVisitors ?? '—';
+    
+    document.getElementById('last-refresh').textContent = 'Frissítve: ' + new Date().toLocaleTimeString('hu-HU');
+
+    // Chart.js frissítés
+    if(d.chart) {
+        if(!chartInstance) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = 'Inter';
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: d.chart.labels,
+                    datasets: [
+                        { label: 'Látogatók', data: d.chart.visitors, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true, tension: 0.4 },
+                        { label: 'Tiltások', data: d.chart.bans, borderColor: '#ef4444', backgroundColor: 'transparent', borderDash: [5, 5], tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
+                }
+            });
+        } else {
+            chartInstance.data.datasets[0].data = d.chart.visitors;
+            chartInstance.data.datasets[1].data = d.chart.bans;
+            chartInstance.update();
+        }
+    }
+}
+
+async function loadBans(page = currentBanPage) {
+    currentBanPage = page;
+    let url = `/admin/api/banned?page=${page}`;
+    if (currentFilter) url += '&type=' + currentFilter;
+    const search = document.getElementById('search-ip').value;
+    if (search) url += '&search=' + encodeURIComponent(search);
+    
+    const r = await fetch(url);
+    const d = await r.json();
+    const tbody = document.getElementById('bans-tbody');
+    
+    if(!d.docs?.length) { tbody.innerHTML = '<tr><td colspan="7">Nincs adat.</td></tr>'; return; }
+    
+    tbody.innerHTML = d.docs.map(x => `
+        <tr>
+            <td class="ip-cell">${x.ip}</td>
+            <td style="color:var(--muted)">${x.reason}</td>
+            <td><span class="tag tag-${x.type==='permanent'?'red':'orange'}">${x.type==='permanent'?'Végleges':'24 Óra'}</span></td>
+            <td style="cursor:help" title="${x.city||'Város ismeretlen'} | ${x.isp||'Szolgáltató ismeretlen'}">${x.flag ? `<img src="${x.flag}" style="width:22px;vertical-align:middle;margin-right:6px;border-radius:3px;">` : ''}${x.country||'Ismeretlen'}</td>
+            <td>${parseUA(x.userAgent)}</td>
+            <td style="font-size:12px;color:var(--muted)">${fmt(x.bannedAt)}</td>
+            <td><button class="btn-action" onclick="unban('${x.ip}')">Feloldás</button></td>
+        </tr>
+    `).join('');
+}
+
+async function loadVisitors(page = currentVisPage) {
+    currentVisPage = page;
+    const d = await fetch('/admin/api/visitors?page=' + page).then(r=>r.json());
+    const tbody = document.getElementById('vis-tbody');
+    if(!d.docs?.length) return tbody.innerHTML = '<tr><td colspan="6">Nincs adat.</td></tr>';
+    
+    tbody.innerHTML = d.docs.map(x => `
+        <tr>
+            <td class="ip-cell">${x.ip}</td>
+            <td style="color:var(--cyan)">${x.page}</td>
+            <td style="cursor:help" title="${x.city||'Város ismeretlen'} | ${x.isp||'Szolgáltató ismeretlen'}">${x.flag ? `<img src="${x.flag}" style="width:22px;vertical-align:middle;margin-right:6px;border-radius:3px;">` : ''}${x.country||'Ismeretlen'}</td>
+            <td>${parseUA(x.ua)}</td>
+            <td>${x.lang||'—'}</td>
+            <td style="font-size:12px;color:var(--muted)">${fmt(x.visitedAt)}</td>
+        </tr>
+    `).join('');
+}
+
+async function loadSecurity(page = currentSecPage) {
+    currentSecPage = page;
+    const d = await fetch('/admin/api/security?page=' + page).then(r=>r.json());
+    const tbody = document.getElementById('sec-tbody');
+    if(!d.docs?.length) return tbody.innerHTML = '<tr><td colspan="6">Nincs adat.</td></tr>';
+    
+    tbody.innerHTML = d.docs.map(x => `
+        <tr>
+            <td class="ip-cell">${x.ip}</td>
+            <td style="color:var(--orange)">${x.reason}</td>
+            <td>${x.page}</td>
+            <td style="cursor:help" title="${x.city||'Város ismeretlen'}">${x.country||'—'}</td>
+            <td>${x.banned ? '<span class="tag tag-red">Igen</span>' : '<span class="tag tag-green">Nem</span>'}</td>
+            <td style="font-size:12px;color:var(--muted)">${fmt(x.loggedAt)}</td>
+        </tr>
+    `).join('');
+}
+
+function switchTab(name) {
+    ['bans','visitors','security'].forEach(t => {
+        document.getElementById('tab-'+t).classList.toggle('hidden', t!==name);
+        if(t==='visitors' && name==='visitors') loadVisitors();
+        if(t==='security' && name==='security') loadSecurity();
+    });
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===name));
+}
+
+function setFilter(btn, f) {
+    currentFilter = f;
+    document.querySelectorAll('.ftab').forEach(b => b.classList.toggle('active', b===btn));
+    loadBans(1);
+}
+let t; function filterBans() { clearTimeout(t); t = setTimeout(()=>loadBans(1),300); }
+
+async function unban(ip) {
+    if(confirm(`Biztos feloldod: ${ip}?`)) {
+        await fetch('/admin/api/unban', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ip}) });
+        loadBans(); loadStats();
+    }
+}
+
+// Init
+loadStats();
+loadBans();
+setInterval(() => { loadStats(); loadBans(currentBanPage); }, 30000);
+</script>
+</body>
+</html>
