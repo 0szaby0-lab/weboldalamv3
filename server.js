@@ -451,7 +451,7 @@ const FORBIDDEN_UA_PATTERNS = [
     'httpx/',                   // Python httpx
     'pip/',                     // pip package manager
     'java/', 'java-http-client', 'okhttp', 'apache-httpclient', 'java.net',
-    'go-http-client', 'go/',
+    'go/',
     'ruby/', 'faraday', 'rest-client',
     'perl/', 'libwww-perl', 'lwp-request',
     'php/', 'php-curl', 'guzzlehttp',
@@ -515,7 +515,7 @@ const FORBIDDEN_UA_REGEX = [
     /^curl\//i,
     /^wget\//i,
     /^python-/i,
-    /^go-http-client\//i,
+
     /^java\//i,
     /^okhttp\//i,
     /^axios\//i,
@@ -642,7 +642,7 @@ function getClientIp(req) {
 }
 
 const WHITELISTED_IPS = (process.env.ALLOWED_VPN_IPS || '').split(',').map(s => normalizeIp(s.trim())).filter(Boolean);
-const MY_IPS = (process.env.MY_IP || '').split(',').map(s => normalizeIp(s.trim())).filter(Boolean);
+const MY_IPS = [...(process.env.MY_IP || '').split(','), '127.0.0.1', '::1', 'localhost'].map(s => normalizeIp(s.trim())).filter(Boolean);
 
 // Tiltás kezelés (Memória alapú)
 const bannedIPs = new Map(); 
