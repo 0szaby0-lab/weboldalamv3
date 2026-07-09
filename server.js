@@ -762,9 +762,37 @@ app.get('/banned-permanent.html', (req, res) => {
 });
 
 // ==========================================
-// ANTI-DDOS (Spam / Flood védelem)
+// ANTI-DDOS (Kétlépcsős Spam / Flood védelem)
 // ==========================================
 const requestCounts = new Map();
+
+// GLOBÁLIS PÁNIK MÓD (Botnet / Proxy hálózatok ellen)
+let globalRequestCount = 0;
+let globalPanicMode = false;
+let panicModeUntil = 0;
+
+setInterval(() => {
+    if (globalRequestCount > 100 && !globalPanicMode) {
+        globalPanicMode = true;
+        panicModeUntil = Date.now() + 60000; // 1 percre lezárjuk a szervert
+        axios.post(process.env.DDOS_WEBHOOK || process.env.REPORT_WEBHOOK, { 
+            username: "🛡️ PÁNIK MÓD AKTIVÁLVA", 
+            embeds: [{ 
+                title: '🚨 GLOBÁLIS BOTNET TÁMADÁS ÉSZLELVE! 🚨', 
+                description: `Több mint 100 kérés érkezett 1 másodperc alatt!\nA szerver PÁNIK MÓDBA lépett, és 1 percig minden kérést eldob, hogy ne omoljon össze.`,
+                color: 0xff0000 
+            }] 
+        }).catch(()=>{});
+    }
+    if (globalPanicMode && Date.now() > panicModeUntil) {
+        globalPanicMode = false;
+        axios.post(process.env.DDOS_WEBHOOK || process.env.REPORT_WEBHOOK, { 
+            username: "🛡️ PÁNIK MÓD KIKAPCSOLVA", 
+            content: "✅ A proxy-támadás valószínűleg véget ért. A szerver újra normálisan működik."
+        }).catch(()=>{});
+    }
+    globalRequestCount = 0; // Nullázzuk minden másodpercben
+}, 1000);
 
 // Automatikus memória tisztítás percenként (Memóriaszivárgás ellen)
 setInterval(() => {
@@ -784,6 +812,16 @@ const DDOS_SUSTAINED_TIME = 10000;
 
 app.use((req, res, next) => {
     const ip = getClientIp(req);
+    
+    // Globális Pánik Mód védelem (Mindenkit eldobunk, kivéve magunkat)
+    globalRequestCount++;
+    if (globalPanicMode) {
+        if (WHITELISTED_IPS.includes(ip) || MY_IPS.includes(ip)) {
+            // Saját IP átengedése pánik módban is
+        } else {
+            return res.status(503).send('<h1>A szerver jelenleg globális támadás alatt áll (Pánik Mód). Kérjük, próbálkozz 1 perc múlva.</h1>');
+        }
+    }
     
     // Fehérlistás / Saját IP-k mentesülnek a limit alól
     if (WHITELISTED_IPS.includes(ip) || MY_IPS.includes(ip)) {
