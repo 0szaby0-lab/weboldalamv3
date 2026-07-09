@@ -579,6 +579,11 @@ function blockScraper(req, res, reason) {
 
 // ── A tényleges middleware ──
 app.use((req, res, next) => {
+    const ip = getClientIp(req);
+    if (MY_IPS.includes(ip) || WHITELISTED_IPS.includes(ip)) {
+        return next();
+    }
+
     const ua = req.headers['user-agent'] || '';
     const uaLower = ua.toLowerCase();
 
@@ -654,6 +659,10 @@ function isIpBanned(ip) {
 }
 
 function banIp(ip, reason, userAgent, geoData) { 
+    if (MY_IPS.includes(ip) || WHITELISTED_IPS.includes(ip)) {
+        console.log(`[VÉDELEM] Tiltás ignorálva saját IP esetén: ${ip}`);
+        return;
+    }
     bannedIPs.set(ip, Date.now() + BAN_DURATION_MS);
     // MongoDB mentés (aszinkron, nem blokkolja)
     BannedIP.findOneAndUpdate(
