@@ -765,42 +765,67 @@ app.get('/banned-permanent.html', (req, res) => {
 // ANTI-DDOS (Spam / Flood védelem)
 // ==========================================
 const requestCounts = new Map();
-const DDOS_LIMIT = 40; // Max engedélyezett kérés
-const DDOS_TIMEFRAME = 10000; // 10 másodperces ablakban
+
+// Automatikus memória tisztítás percenként (Memóriaszivárgás ellen)
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, data] of requestCounts.entries()) {
+        if (now - data.startTime > 60000) {
+            requestCounts.delete(ip);
+        }
+    }
+}, 60000);
+
+const DDOS_BURST_LIMIT = 20; // Max 20 kérés / 2 másodperc (villámgyors spam)
+const DDOS_BURST_TIME = 2000;
+
+const DDOS_SUSTAINED_LIMIT = 60; // Max 60 kérés / 10 másodperc (folyamatos terhelés)
+const DDOS_SUSTAINED_TIME = 10000;
 
 app.use((req, res, next) => {
     const ip = getClientIp(req);
     
-    // Fehérlistás / Saját IP-kre (teszt mód alatt is aktív lehet, de most védjük)
+    // Fehérlistás / Saját IP-k mentesülnek a limit alól
     if (WHITELISTED_IPS.includes(ip) || MY_IPS.includes(ip)) {
         return next();
     }
 
     const now = Date.now();
-    const reqData = requestCounts.get(ip) || { count: 0, startTime: now };
+    const reqData = requestCounts.get(ip) || { burstCount: 0, sustainedCount: 0, startTime: now, burstStartTime: now };
 
-    if (now - reqData.startTime > DDOS_TIMEFRAME) {
-        reqData.count = 1;
+    // Burst (villám) mérés reset
+    if (now - reqData.burstStartTime > DDOS_BURST_TIME) {
+        reqData.burstCount = 1;
+        reqData.burstStartTime = now;
+    } else {
+        reqData.burstCount++;
+    }
+
+    // Sustained (folyamatos) mérés reset
+    if (now - reqData.startTime > DDOS_SUSTAINED_TIME) {
+        reqData.sustainedCount = 1;
         reqData.startTime = now;
     } else {
-        reqData.count++;
-        if (reqData.count > DDOS_LIMIT) {
-            // Túl sok kérés -> azonnal BAN!
-            if (!isIpBanned(ip)) {
-                getGeo(ip).then(geoData => {
-                    banIp(ip, `DDoS - ${reqData.count} kérés/10mp`, req.headers['user-agent'] || '', geoData);
-                    axios.post(process.env.DDOS_WEBHOOK || REPORT_WEBHOOK, { 
-                        username: "🛡️ DDoS Védelem", 
-                        embeds: [{ 
-                            title: '🚨 AUTOMATIKUS DDOS BLOKKOLÁS! 🚨', 
-                            description: `**Támadó IP:** ${ip}\n**Ok:** Másodpercenkénti kérések túllépve (${reqData.count} kérés 10mp alatt)\n**BÜNTETÉS:** Kitiltva 24 órára.\n` + formatGeoDataReport(geoData, req.originalUrl),
-                            color: 0x8b0000 
-                        }] 
-                    }).catch(()=>{});
+        reqData.sustainedCount++;
+    }
+
+    if (reqData.burstCount > DDOS_BURST_LIMIT || reqData.sustainedCount > DDOS_SUSTAINED_LIMIT) {
+        // Túl sok kérés -> azonnal BAN!
+        if (!isIpBanned(ip)) {
+            const reason = reqData.burstCount > DDOS_BURST_LIMIT ? 'DDoS - Villámgyors Spam (Burst)' : 'DDoS - Folyamatos Terhelés (Sustained)';
+            getGeo(ip).then(geoData => {
+                banIp(ip, reason, req.headers['user-agent'] || '', geoData);
+                axios.post(process.env.DDOS_WEBHOOK || REPORT_WEBHOOK, { 
+                    username: "🛡️ Kétlépcsős DDoS Védelem", 
+                    embeds: [{ 
+                        title: '🚨 AUTOMATIKUS DDOS BLOKKOLÁS! 🚨', 
+                        description: `**Támadó IP:** ${ip}\n**Ok:** ${reason}\n**BÜNTETÉS:** Kitiltva 24 órára.\n` + formatGeoDataReport(geoData, req.originalUrl),
+                        color: 0x8b0000 
+                    }] 
                 }).catch(()=>{});
-            }
-            return res.status(429).sendFile(path.join(__dirname, 'public', 'banned-ip.html'));
+            }).catch(()=>{});
         }
+        return res.status(429).sendFile(path.join(__dirname, 'public', 'banned-ip.html'));
     }
     
     requestCounts.set(ip, reqData);
