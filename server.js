@@ -44,6 +44,9 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+// RENDER.COM KEEP-ALIVE - Legfelülre tesszük, hogy a védelmek (middleware-ek) ne blokkolják
+app.get('/api/ping', (req, res) => res.send('pong'));
+
 // ==========================================
 // KONFIGURÁCIÓ ÉS VÁLTOZÓK
 // ==========================================
@@ -1037,7 +1040,7 @@ app.post('/api/biztonsagi-naplo-v1', express.json(), async (req, res) => {
   const referer = req.get('referer');
   
   // Origin Check - Külső hívások blokkolása
-  if (origin && !origin.includes('szaby.is-a.dev') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+  if (origin && !origin.includes('szaby.is-a.dev') && !origin.includes('onrender.com') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
       banIp(ip); 
 
       axios.post(REPORT_WEBHOOK || ALERT_WEBHOOK, { 
@@ -1245,9 +1248,6 @@ app.get('/', (req, res) => {
 // 404 Kezelés
 app.use((req, res) => res.status(404).send('404 Not Found'));
 
-// RENDER.COM KEEP-ALIVE (Hogy ne aludjon el a szerver)
-app.get('/api/ping', (req, res) => res.send('pong'));
-
 // SZERVER INDÍTÁSA
 app.listen(PORT, () => {
     console.log(`Szerver elindult: http://localhost:${PORT}`);
@@ -1255,7 +1255,9 @@ app.listen(PORT, () => {
     // 14 percenként pingeli önmagát (Render 15 perc inaktivitás után leállna)
     setInterval(() => {
         const renderUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
-        axios.get(`${renderUrl}/api/ping`)
+        axios.get(`${renderUrl}/api/ping`, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+        })
             .then(() => console.log(`[Keep-Alive] Sikeres ön-ping: ${renderUrl}`))
             .catch(err => console.error(`[Keep-Alive] Hiba:`, err.message));
     }, 14 * 60 * 1000);
