@@ -105,14 +105,7 @@ Object.defineProperty(window, 'console', {
     }
 });
 
-// 3B. DevTools Resize Detector (Ha F12-t oldalra dokkolva nyitják meg)
-const initialWidth = window.innerWidth;
-const initialHeight = window.innerHeight;
-window.addEventListener('resize', () => {
-    if (Math.abs(window.innerWidth - initialWidth) > 150 || Math.abs(window.innerHeight - initialHeight) > 150) {
-        reportBadActivity("DevTools megnyitás (Ablak átméretezés érzékelve)");
-    }
-});
+// 3B. DevTools Resize Detector eltávolítva az ablakméretezési tiltások elkerülése végett
 
 // 3C. DOM Tampering Detection (Script törlés elleni védelem)
 // Ellenőrzi, hogy az extra.js ÉS a js-devtools-detector.js script tagek megvannak-e
@@ -182,17 +175,3 @@ document.addEventListener("contextmenu", _0x440092 => {
   _0x440092.preventDefault();
   reportBadActivity("Jobb kattintás blokkolva");
 });
-
-function isDesktop() {
-  return window.innerWidth > 768;
-}
-
-if (isDesktop()) {
-  setInterval(() => {
-    const diff = 160;
-    if (window.outerWidth - window.innerWidth > diff || window.outerHeight - window.innerHeight > diff) {
-        reportBadActivity("Ablakméret eltérés detektálva (DevTools)");
-        window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-    }
-  }, 1000);
-}
